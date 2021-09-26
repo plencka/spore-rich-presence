@@ -1,0 +1,4 @@
+string16 smallImage "spg_bard"
+texts smallHoverName
+	"Bard"
+end

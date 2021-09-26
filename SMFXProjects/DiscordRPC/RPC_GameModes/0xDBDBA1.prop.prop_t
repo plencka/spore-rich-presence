@@ -1,0 +1,5 @@
+string16 largeHoverName "Editor"
+string16 largeImage "ga_small"
+
+string16 detailName "In Editor"
+string16 stateName "Creating something new."

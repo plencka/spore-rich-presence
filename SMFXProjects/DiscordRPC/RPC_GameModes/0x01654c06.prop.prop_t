@@ -1,0 +1,12 @@
+string16 largeImage "ga_small"
+
+texts detailName
+	"Level Editor"
+end
+texts stateName
+	"Using developer tools."
+end
+
+texts largeHoverName
+	"Exploring ancient tools."
+end

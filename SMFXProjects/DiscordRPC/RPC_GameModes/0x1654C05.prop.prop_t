@@ -1,0 +1,12 @@
+string16 largeImage "stagespace_large"
+
+texts detailName
+	"Space Stage"
+end
+texts stateName
+	"[nothing]"
+end
+
+texts largeHoverName
+	"Exploring the Universe."
+end

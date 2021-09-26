@@ -1,0 +1,13 @@
+string16 largeImage "galaxyscreen_large"
+string16 smallImage "ga_small"
+
+texts detailName
+	(discord_rpc_base!0x0) "In Main Menu (NL)"
+end
+texts stateName
+	(discord_rpc_base!0x1) "Galactic View. (NL)"
+end
+
+texts largeHoverName
+	(discord_rpc_base!0x2) "Pondering the meaning of life. (NL)"
+end

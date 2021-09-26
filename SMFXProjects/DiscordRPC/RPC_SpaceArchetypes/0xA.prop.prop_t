@@ -1,0 +1,4 @@
+string16 smallImage "spg_trader"
+texts smallHoverName
+	"Trader"
+end

@@ -1,0 +1,12 @@
+string16 largeImage "ga_small"
+
+texts detailName
+	"Cutscene"
+end
+texts stateName
+	"Watching a cinematic."
+end
+
+texts largeHoverName
+	"In a cinema without popcorn."
+end

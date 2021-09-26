@@ -1,0 +1,12 @@
+string16 largeImage "galaxyscreen_large"
+
+texts detailName
+	"Effect Editor"
+end
+texts stateName
+	"Using Mod Utility"
+end
+
+texts largeHoverName
+	"Not so secret firework factory."
+end

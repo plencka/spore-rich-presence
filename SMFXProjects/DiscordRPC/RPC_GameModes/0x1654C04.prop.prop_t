@@ -1,0 +1,5 @@
+string16 largeHoverName "Civilization Stage"
+string16 largeImage "stageciv_large"
+
+string16 detailName "In Game"
+string16 stateName "Fighting for planetary domination."

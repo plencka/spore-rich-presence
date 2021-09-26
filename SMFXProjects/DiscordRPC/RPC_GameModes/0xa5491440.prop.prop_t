@@ -1,0 +1,12 @@
+string16 largeImage "galaxyscreen_large"
+
+texts detailName
+	"Animation Editor"
+end
+texts stateName
+	"Using Mod Utility"
+end
+
+texts largeHoverName
+	"Creating new fancy dances."
+end

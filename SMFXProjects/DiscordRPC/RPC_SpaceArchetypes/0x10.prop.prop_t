@@ -1,0 +1,4 @@
+string16 smallImage "spg_ecologist"
+texts smallHoverName
+	"Ecologist"
+end
