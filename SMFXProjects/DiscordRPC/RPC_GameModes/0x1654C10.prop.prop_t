@@ -1,5 +1,9 @@
-string16 largeHoverName "Adventure"
 string16 largeImage "ga_small"
 
-string16 detailName "In Game"
-string16 stateName "Adventuring."
+texts largeHoverName
+	 "Immersing themselves."
+end
+
+texts detailName
+	"Adventure"
+end

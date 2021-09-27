@@ -1,13 +1,17 @@
 string16 largeImage "galaxyscreen_large"
-string16 smallImage "ga_small"
+string16 smallImage "spore_large"
 
 texts detailName
 	"In Main Menu"
 end
 texts stateName
-	"Galactic View."
+	"Galactic View"
 end
 
 texts largeHoverName
 	"Pondering the meaning of life."
+end
+
+texts smallHoverName
+	"Enhanced by ModAPI."
 end

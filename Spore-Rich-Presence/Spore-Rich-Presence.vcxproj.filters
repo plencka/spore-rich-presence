@@ -22,6 +22,7 @@
     <ClInclude Include="DiscordPresenceManager.h" />
     <ClInclude Include="StageHandlers\ModeHandlers.h" />
     <ClInclude Include="StageHandlers\StageData.h" />
+    <ClInclude Include="Utilities\PropTextParsing.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

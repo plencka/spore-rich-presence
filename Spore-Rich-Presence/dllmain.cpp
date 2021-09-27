@@ -6,13 +6,13 @@
 
 void Initialize()
 {
+	SporeDebugPrint("Discord Rich Presence: DEBUG RELEASE");
 	SporePresence::InitializeListeners();
 	App::AddUpdateFunction(new SporePresence::DiscordPresenceManager());
 }
 
 void Dispose()
 {
-	// This method is called when the game is closing
 }
 
 void AttachDetours()
@@ -46,4 +46,3 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	}
 	return TRUE;
 }
-
