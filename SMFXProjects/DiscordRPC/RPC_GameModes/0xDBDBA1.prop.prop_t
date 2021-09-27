@@ -1,5 +1,8 @@
-string16 largeHoverName "Editor"
-string16 largeImage "ga_small"
+string16 largeImage "galaxyscreen_large"
 
-string16 detailName "In Editor"
-string16 stateName "Creating something new."
+texts detailName
+	"In Editor"
+end
+texts stateName
+	"Unknown"
+end

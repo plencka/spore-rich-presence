@@ -2,20 +2,37 @@
 #include "StageData.h"
 
 namespace SporePresence {
-	class SpaceHandler
-		: public StageHandler
-	{
-	public:
-		SpaceHandler::SpaceHandler()
+	namespace Handlers {
+		class SpaceHandler
+			: public StageHandler
 		{
-			modeID = KnownModeID::kStageSpace;
-		}
+		public:
+			SpaceHandler::SpaceHandler()
+			{
+				modeID = KnownModeID::kStageSpace;
+			}
 
-	protected:
-		bool HandleMessage(uint32_t messageID, void* message) override;
-	};
+		protected:
+			bool HandleMessage(uint32_t messageID, void* message) override;
+		};
+
+
+		class EditorHandler
+			: public StageHandler
+		{
+		public:
+			EditorHandler::EditorHandler()
+			{
+				modeID = KnownModeID::kEditor;
+			}
+
+		protected:
+			bool HandleMessage(uint32_t messageID, void* message) override;
+		};
+	}
 
 	static void InitializeListeners() {
-		MessageManager.AddListener(new SpaceHandler(), StageMessageID::kDiscordRequestStageActivity);
+		MessageManager.AddListener(new Handlers::SpaceHandler(), StageMessageID::kDiscordRequestStageActivity);
+		MessageManager.AddListener(new Handlers::EditorHandler(), StageMessageID::kDiscordRequestStageActivity);
 	}
 }
