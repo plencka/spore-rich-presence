@@ -1,12 +1,9 @@
 string16 largeImage "stagecell_large"
 
-texts detailName
-	(discord_rpc_base!0x10) "Cell Stage (NL)"
-end
-texts stateName
-	(discord_rpc_base!0x11) "Playing as ~player_species~. (NL)"
+texts largeHoverName
+	"Gaining sapience."
 end
 
-texts largeHoverName
-	(discord_rpc_base!0x12) "Gaining sapience. (NL)"
+texts detailName
+	"Cell Stage"
 end

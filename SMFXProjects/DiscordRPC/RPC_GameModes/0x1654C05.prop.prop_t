@@ -1,8 +1,9 @@
 string16 largeImage "stagespace_large"
 
+texts largeHoverName
+	"Exploring the Universe."
+end
+
 texts detailName
 	"Space Stage"
-end
-texts stateName
-	"Exploring the Universe."
 end

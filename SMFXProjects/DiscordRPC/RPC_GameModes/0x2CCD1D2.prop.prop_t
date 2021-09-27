@@ -2,12 +2,12 @@ string16 largeImage "galaxyscreen_large"
 string16 smallImage "ga_small"
 
 texts detailName
-	(discord_rpc_base!0x0) "In Main Menu (NL)"
+	"In Main Menu"
 end
 texts stateName
-	(discord_rpc_base!0x1) "Galactic View. (NL)"
+	"Galactic View."
 end
 
 texts largeHoverName
-	(discord_rpc_base!0x2) "Pondering the meaning of life. (NL)"
+	"Pondering the meaning of life."
 end
