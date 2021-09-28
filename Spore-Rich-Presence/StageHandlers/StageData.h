@@ -15,7 +15,7 @@ namespace SporePresence {
 		kStageSpace = 0x01654c05,
 		kAdventure = 0x01654c10,
 		kMainMenu = 0x02ccd1d2,
-		kLoading = 0x8916f92d, // ? Only pre-cell stage cutscene?
+		kCinematic = 0x8916f92d, // ? Only pre-cell stage cutscene?
 		kEditor = 0x00dbdba1, // Any editor, excluding Adventure
 	};
 

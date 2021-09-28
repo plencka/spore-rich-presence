@@ -23,6 +23,7 @@
     <ClInclude Include="StageHandlers\ModeHandlers.h" />
     <ClInclude Include="StageHandlers\StageData.h" />
     <ClInclude Include="Utilities\PropTextParsing.h" />
+    <ClInclude Include="Utilities\UintTimeStamps.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -1,18 +1,17 @@
 #include "stdafx.h"
-#include <chrono>
 #include "DiscordPresenceManager.h"
-#include <Spore/App/IGameMode.h>
-#include <Spore/App/cGameModeManager.h>
+#include "StageHandlers/StageData.h"
 #include "Utilities/PropTextParsing.h"
+#include "Utilities/UintTimeStamps.h"
 
 namespace SporePresence {
 
-#undef DISCORD_GHOST_STATUS // If defined, forces no updates to Discord, to prevent abuse of API rate limits when testing.
+#undef DISCORD_GHOST_STATUS
 	discord::Core* discordCore{};
 
 	DiscordPresenceManager::DiscordPresenceManager() {
 		discordData.lastModeID = 0;
-		discordData.startTimestamp = GetCurrentTimestamp();
+		UintTimeStamp::SetTimestamp(discordData.startTimestamp);
 
 		MessageManager.AddListener(this, App::OnModeEnterMessage::ID);
 		MessageManager.AddListener(this, StageMessageID::kDiscordUpdateActivity);
@@ -36,19 +35,29 @@ namespace SporePresence {
 		activity.SetState("Loading...");
 		discordCore->ActivityManager().UpdateActivity(activity, [](discord::Result result) {});
 
-		if (auto modeManager = GameModeManager.Get()) {
-			auto cMode = reinterpret_cast<App::cGameModeManager*>(modeManager);
+		if (GameModeManager.Get()) {
 			NewModeActivity(GameModeManager.GetActiveModeID());
 		}
 	}
 
-	void DiscordPresenceManager::RefreshDiscordStatus(bool forceRefresh)
+	void DiscordPresenceManager::Update()
+	{
+		if (!discordCore) {
+			return;
+		}
+		MessageManager.PostMSG(StageMessageID::kDiscordRequestStageActivity, nullptr);
+
+		NotifyDiscord();
+		discordCore->RunCallbacks();
+	}
+
+
+	void DiscordPresenceManager::NotifyDiscord(bool forceRefresh)
 	{
 		if (discordData.requiresRefresh || forceRefresh) {
 			auto now = std::chrono::system_clock::now();
-			uint64_t timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-
-			if ((timestamp - discordData.refreshTimestamp) > rateFriendlySeconds) {
+			uint64_t timestamp = UintTimeStamp::GetCurrentTimestamp();
+			if (UintTimeStamp::HasElapsed(discordData.refreshTimestamp, rateFriendlyValue)) {
 				discordData.refreshTimestamp = timestamp;
 				discordData.requiresRefresh = false;
 
@@ -60,45 +69,29 @@ namespace SporePresence {
 		}
 	}
 
-	void DiscordPresenceManager::Update()
-	{
-		if (!discordCore) {
-			return;
-		}
-		MessageManager.PostMSG(StageMessageID::kDiscordRequestStageActivity, nullptr);
-
-		RefreshDiscordStatus();
-		discordCore->RunCallbacks();
-	}
-
-	uint64_t DiscordPresenceManager::GetCurrentTimestamp()
-	{
-		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-		return std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-	}
-
-	void DiscordPresenceManager::UpdateValues(ResourceID fileID) {
+	void DiscordPresenceManager::UpdateActivityData(ResourceID fileID) {
 		PropertyListPtr propList;
 		if (PropManager.GetPropertyList(fileID.instanceID, fileID.groupID, propList))
 		{
+			ActivityFileReader activityRead = ActivityFileReader(propList);
 			string text;
-			if (GetTextFromLocaleString(propList.get(), 0x64332DFD, text)) {
+			if (activityRead.GetTextFromLocaleString(0x64332DFD, text)) {
 				discordData.activity.GetAssets().SetLargeText(text.c_str());
 			}
-			if (GetTextFromLocaleString(propList.get(), 0x304B070F, text)) {
+			if (activityRead.GetTextFromLocaleString(0x304B070F, text)) {
 				discordData.activity.SetDetails(text.c_str());
 			}
-			if (GetTextFromLocaleString(propList.get(), 0xBAD876E1, text)) {
+			if (activityRead.GetTextFromLocaleString(0xBAD876E1, text)) {
 				discordData.activity.SetState(text.c_str());
 			}
-			if (GetTextFromLocaleString(propList.get(), 0x4AF215B1, text)) {
+			if (activityRead.GetTextFromLocaleString(0x4AF215B1, text)) {
 				discordData.activity.GetAssets().SetSmallText(text.c_str());
 			}
 
-			if (GetTextFromUnicode(propList.get(), 0xABE76E55, text)) {
+			if (activityRead.GetTextFromUnicode(0xABE76E55, text)) {
 				discordData.activity.GetAssets().SetLargeImage(text.c_str());
 			}
-			if (GetTextFromUnicode(propList.get(), 0x1C6B2351, text)) {
+			if (activityRead.GetTextFromUnicode(0x1C6B2351, text)) {
 				discordData.activity.GetAssets().SetSmallImage(text.c_str());
 			}
 
@@ -114,7 +107,7 @@ namespace SporePresence {
 		discordData.activity.SetDetails("Unknown Mode");
 		discordData.activity.GetTimestamps().SetStart(discordData.startTimestamp);
 
-		UpdateValues({ newMode , id("RPC_GameModes") });
+		UpdateActivityData({ newMode , id("RPC_GameModes") });
 	}
 
 
@@ -124,7 +117,7 @@ namespace SporePresence {
 			auto data = (StageMessageData*)message;
 
 			if (data->stageID == discordData.lastModeID) {
-				UpdateValues(data->activityPropFile);
+				UpdateActivityData(data->activityPropFile);
 			}
 
 			return true;
@@ -145,7 +138,7 @@ namespace SporePresence {
 		return false;
 	}
 
-	// Generic API methods
+
 	int DiscordPresenceManager::AddRef()
 	{
 		return DefaultRefCounted::AddRef();
