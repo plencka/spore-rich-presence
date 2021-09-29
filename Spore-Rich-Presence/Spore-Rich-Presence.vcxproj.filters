@@ -54,4 +54,10 @@
       <Filter>Internal</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="ModInfo.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SdkPathConfig.props.example" />
+  </ItemGroup>
 </Project>
