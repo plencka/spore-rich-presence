@@ -39,4 +39,6 @@ Want to see it in action? Take a look:
 This modification uses [ModAPI](https://github.com/emd4600/Spore-ModAPI). Please, use instructions in the linked repository.
 
 #
-*Repository requires Discord Game SDK. It contains modified files from this project.
+*Repository requires Discord Game SDK and contains necessary modifications.*
+
+*All trademarks belong to their respective owners.*
