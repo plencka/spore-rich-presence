@@ -71,7 +71,7 @@ namespace SporePresence {
 
 		/// Read and write data into activity if file exists.
 		/// @param fileID - Source file identifier.
-		void UpdateActivityData(ResourceID fileID);
+		void UpdateActivityData(ResourceID fileID, bool repeatToUnknownOnFail = true);
 
 		/// Refresh activity to show new data.
 		/// @param forceRefresh - Refresh activity, even if it's not pending. Doesn't override rate limits.

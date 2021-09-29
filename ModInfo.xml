@@ -1,0 +1,7 @@
+<mod displayName="Discord Rich Presence" unique="OwlyRichPresence" description="Makes Spore's Discord Rich Presence more fun. https://github.com/plencka/Spore-Rich-Presence" installerSystemVersion="1.0.1.0" hasCustomInstaller="false" dllsBuild="2.5.179">
+	<prerequisite>Spore-Rich-Presence.dll</prerequisite>
+	<prerequisite>discord_game_sdk.dll</prerequisite>
+	<prerequisite game="GalacticAdventures">DiscordRPC.package</prerequisite>
+	<remove game="GalacticAdventures">DiscordRPC*</remove>
+	<remove game="Spore">DiscordRPC*</remove>
+</mod>

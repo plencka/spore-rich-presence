@@ -1,0 +1,8 @@
+string16 largeImage "galaxyscreen_large"
+
+texts detailName
+	"Unknown Mode"
+end
+texts stateName
+	"In the Abyss."
+end

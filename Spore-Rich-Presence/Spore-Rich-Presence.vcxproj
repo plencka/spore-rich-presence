@@ -149,7 +149,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SdkPathConfig.props" />
+    <Xml Include="ModInfo.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SdkPathConfig.props.example" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
