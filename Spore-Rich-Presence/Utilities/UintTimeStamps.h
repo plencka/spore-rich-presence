@@ -10,17 +10,24 @@ namespace SporePresence {
 		};
 
 		/// Set current timestamp to the argument.
-		static void SetTimestamp(uint64_t& timestamp) {
+		static void SetTimeStamp(uint64_t& timestamp) {
 			timestamp = GetCurrentTimestamp();
 		};
 
 		/// @param prevTimeStamp - Timestamp that should be in the past.
 		/// @param waitTime - In seconds.
+		/// @param writeTimeStamp - Overwrite given timestamp on true.
 		/// @return bool - Has `waitTime` elapsed or not.
-		static bool HasElapsed(uint64_t& prevTimeStamp, uint64_t waitTime) {
+		static bool HasElapsed(uint64_t& prevTimeStamp, uint64_t waitTime, bool writeTimeStamp = true) {
 			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 			uint64_t currentTimestamp = GetCurrentTimestamp();
-			return (currentTimestamp - prevTimeStamp) > waitTime;
+			if ((currentTimestamp - prevTimeStamp) > waitTime) {
+				if (writeTimeStamp) {
+					prevTimeStamp = currentTimestamp;
+				}
+				return true;
+			}
+			return false;
 		};
 	};
 }

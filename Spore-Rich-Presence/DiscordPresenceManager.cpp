@@ -1,17 +1,14 @@
 #include "stdafx.h"
 #include "DiscordPresenceManager.h"
 #include "StageHandlers/StageData.h"
-#include "Utilities/PropTextParsing.h"
+#include "Utilities/ActivityFileReader.h"
 #include "Utilities/UintTimeStamps.h"
 
 namespace SporePresence {
 
-#undef DISCORD_GHOST_STATUS
-	discord::Core* discordCore{};
-
 	DiscordPresenceManager::DiscordPresenceManager() {
 		discordData.lastModeID = 0;
-		UintTimeStamp::SetTimestamp(discordData.startTimestamp);
+		UintTimeStamp::SetTimeStamp(discordData.startTimestamp);
 
 		MessageManager.AddListener(this, App::OnModeEnterMessage::ID);
 		MessageManager.AddListener(this, StageMessageID::kDiscordUpdateActivity);
@@ -21,7 +18,6 @@ namespace SporePresence {
 
 	DiscordPresenceManager::~DiscordPresenceManager()
 	{
-		discordCore->~Core();
 	}
 
 	void DiscordPresenceManager::InitDiscord() {
@@ -45,9 +41,12 @@ namespace SporePresence {
 		if (!discordCore) {
 			return;
 		}
-		MessageManager.PostMSG(StageMessageID::kDiscordRequestStageActivity, nullptr);
 
-		NotifyDiscord();
+		if (UintTimeStamp::HasElapsed(discordData.refreshTimestamp, rateFriendlyValue)) {
+			MessageManager.PostMSG(StageMessageID::kDiscordRequestStageActivity, nullptr);
+			NotifyDiscord();
+		}
+
 		discordCore->RunCallbacks();
 	}
 
@@ -55,17 +54,13 @@ namespace SporePresence {
 	void DiscordPresenceManager::NotifyDiscord(bool forceRefresh)
 	{
 		if (discordData.requiresRefresh || forceRefresh) {
-			auto now = std::chrono::system_clock::now();
-			uint64_t timestamp = UintTimeStamp::GetCurrentTimestamp();
-			if (UintTimeStamp::HasElapsed(discordData.refreshTimestamp, rateFriendlyValue)) {
-				discordData.refreshTimestamp = timestamp;
-				discordData.requiresRefresh = false;
-
 #ifdef DISCORD_GHOST_STATUS
-				return;
+			discordData.requiresRefresh = false;
+			return;
 #endif
-				discordCore->ActivityManager().UpdateActivity(discordData.activity, [](discord::Result result) {});
-			}
+			discordCore->ActivityManager().UpdateActivity(discordData.activity, [this](discord::Result result) {
+					discordData.requiresRefresh = !(bool)(result == discord::Result::Ok);
+				});
 		}
 	}
 
@@ -73,28 +68,7 @@ namespace SporePresence {
 		PropertyListPtr propList;
 		if (PropManager.GetPropertyList(fileID.instanceID, fileID.groupID, propList))
 		{
-			ActivityFileReader activityRead = ActivityFileReader(propList);
-			string text;
-			if (activityRead.GetTextFromLocaleString(0x64332DFD, text)) {
-				discordData.activity.GetAssets().SetLargeText(text.c_str());
-			}
-			if (activityRead.GetTextFromLocaleString(0x304B070F, text)) {
-				discordData.activity.SetDetails(text.c_str());
-			}
-			if (activityRead.GetTextFromLocaleString(0xBAD876E1, text)) {
-				discordData.activity.SetState(text.c_str());
-			}
-			if (activityRead.GetTextFromLocaleString(0x4AF215B1, text)) {
-				discordData.activity.GetAssets().SetSmallText(text.c_str());
-			}
-
-			if (activityRead.GetTextFromUnicode(0xABE76E55, text)) {
-				discordData.activity.GetAssets().SetLargeImage(text.c_str());
-			}
-			if (activityRead.GetTextFromUnicode(0x1C6B2351, text)) {
-				discordData.activity.GetAssets().SetSmallImage(text.c_str());
-			}
-
+			ActivityFileReader(propList).UpdateData(discordData.activity);
 			discordData.requiresRefresh = true;
 		}
 	}

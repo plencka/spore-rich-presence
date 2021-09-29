@@ -1,17 +1,19 @@
 #pragma once
-#include "discord.h"
+#include <discord.h>
 
 namespace SporePresence {
 	/// If defined, forces no updates to Discord, to prevent abuse of API rate limits when testing.
 	#define DISCORD_GHOST_STATUS
+	#undef DISCORD_GHOST_STATUS
 
 	/// ID received when creating application. Not a Client Secret.
 	/// Change if you want to create custom Rich Presence using own application.
 	constexpr discord::ClientId discordApplicationID = 890708854332076123;
-	/// In seconds.
+
+	/// In seconds. Per discord documentation: 5 updates per 20 seconds.
 	constexpr int rateFriendlyValue = 5;
 
-	/// Contains data used by displayed or pending activity.
+	/// Contains data used to generate activities.
 	/// @param lastModeID - Mode ID of this activity
 	/// @param startTimestamp - Related Mode ID of this activity.
 	/// @param activity - Container of discord activity.
@@ -42,7 +44,10 @@ namespace SporePresence {
 		~DiscordPresenceManager();
 
 	private:
+		///  Activity that should be displayed
 		SporeActivity discordData{};
+
+		discord::Core* discordCore{};
 
 		/// Creates initial state for the discord application client.
 		void InitDiscord();
