@@ -28,9 +28,15 @@ Want to see it in action? Take a look:
 >> Please, submit it on [Issues Page](/../../issues) and be descriptive! Any other way makes me sad.
 >> If no other ModAPI mod works for you and never did, it's likely not related to my modification.
 #
+> * __Where are the image assets?__
+>> Due to external limitations, I cannot provide them.
+#
 > * __Why would you make a mod for a game made in 2008?__
 >> I don't know.
 
 <br><br>
 ## Reminder!
 This modification uses [ModAPI](https://github.com/emd4600/Spore-ModAPI). Please, use instructions in the linked repository.
+
+#
+*Repository requires Discord Game SDK. It contains modified files from this project.
