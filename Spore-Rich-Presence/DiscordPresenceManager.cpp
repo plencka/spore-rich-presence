@@ -5,10 +5,41 @@
 #include "Utilities/UintTimeStamps.h"
 
 namespace SporePresence {
+	intrusive_ptr<App::UpdateMessageListener> DiscordPresenceManager::listenerInstance;
+	uint64_t DiscordPresenceManager::startTimestamp = 0;
+	uint64_t DiscordPresenceManager::refreshTimestamp = 0;
+
+	void DiscordPresenceManager::SporeInit()
+	{
+		UintTimeStamp::SetTimeStamp(startTimestamp);
+	}
+
+	void DiscordPresenceManager::Initialize()
+	{
+		if (listenerInstance) {
+			return;
+		}
+		listenerInstance = App::AddUpdateFunction(new SporePresence::DiscordPresenceManager());
+	}
+
+	void DiscordPresenceManager::Dispose()
+	{
+		if (!listenerInstance) {
+			return;
+		}
+		App::RemoveUpdateFunction(listenerInstance);
+		listenerInstance = nullptr;
+	}
+
+	void DiscordPresenceManager::ResetManager()
+	{
+		Dispose();
+		Initialize();
+	}
 
 	DiscordPresenceManager::DiscordPresenceManager() {
 		discordData.lastModeID = 0;
-		UintTimeStamp::SetTimeStamp(discordData.startTimestamp);
+		discordData.failCount = 0;
 
 		MessageManager.AddListener(this, App::OnModeEnterMessage::ID);
 		MessageManager.AddListener(this, StageMessageID::kDiscordUpdateActivity);
@@ -18,6 +49,12 @@ namespace SporePresence {
 
 	DiscordPresenceManager::~DiscordPresenceManager()
 	{
+		if (!MessageManager.Get()) {
+			return;
+		}
+		MessageManager.RemoveListener(this, App::OnModeEnterMessage::ID);
+		MessageManager.RemoveListener(this, StageMessageID::kDiscordUpdateActivity);
+		discordCore->~Core();
 	}
 
 	void DiscordPresenceManager::InitDiscord() {
@@ -33,21 +70,34 @@ namespace SporePresence {
 
 		if (GameModeManager.Get()) {
 			NewModeActivity(GameModeManager.GetActiveModeID());
+			NotifyDiscord(true);
 		}
 	}
 
+
 	void DiscordPresenceManager::Update()
 	{
-		if (!discordCore) {
-			return;
-		}
-
-		if (UintTimeStamp::HasElapsed(discordData.refreshTimestamp, rateFriendlyValue)) {
+		if (UintTimeStamp::HasElapsed(refreshTimestamp, rateFriendlyValue)) {
+			if (!discordCore) {
+				ResetManager();
+				return;
+			}
 			MessageManager.PostMSG(StageMessageID::kDiscordRequestStageActivity, nullptr);
 			NotifyDiscord();
 		}
 
-		discordCore->RunCallbacks();
+		if (!discordCore) {
+			return;
+		}
+
+		if (discordCore->RunCallbacks() == discord::Result::Ok) {
+			discordData.failCount = 0;
+		}
+		else {
+			if (++discordData.failCount > reconnectThreshold) {
+				ResetManager();
+			};
+		}
 	}
 
 
@@ -59,8 +109,16 @@ namespace SporePresence {
 			return;
 #endif
 			discordCore->ActivityManager().UpdateActivity(discordData.activity, [this](discord::Result result) {
-					discordData.requiresRefresh = !(bool)(result == discord::Result::Ok);
-				});
+				if (result == discord::Result::Ok) {
+					discordData.failCount = 0;
+					discordData.requiresRefresh = false;
+				}
+				else {
+					if (++discordData.failCount > reconnectThreshold) {
+						ResetManager();
+					};
+				}
+			});
 		}
 	}
 
@@ -79,7 +137,7 @@ namespace SporePresence {
 		discordData.activity = discord::Activity();
 
 		discordData.activity.SetDetails("Unknown Mode");
-		discordData.activity.GetTimestamps().SetStart(discordData.startTimestamp);
+		discordData.activity.GetTimestamps().SetStart(startTimestamp);
 
 		UpdateActivityData({ newMode , id("RPC_GameModes") });
 	}

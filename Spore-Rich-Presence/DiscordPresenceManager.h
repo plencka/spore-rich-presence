@@ -13,19 +13,19 @@ namespace SporePresence {
 	/// In seconds. Per discord documentation: 5 updates per 20 seconds.
 	constexpr int rateFriendlyValue = 5;
 
+	// Reset manager after it reaches this threshold
+	constexpr int reconnectThreshold = 5;
+
 	/// Contains data used to generate activities.
-	/// @param lastModeID - Mode ID of this activity
-	/// @param startTimestamp - Related Mode ID of this activity.
+	/// @param failCount - Reconnect after reaching threshold.
+	/// @param lastModeID - Related Mode ID of this activity.
 	/// @param activity - Container of discord activity.
-	/// @param startTimestamp - Timestamp of application launch.
-	/// @param refreshTimestamp - Last time this activity was refreshed.
 	/// @param requiresRefresh - If this activity needs to notify Discord.
 	struct SporeActivity {
+		int failCount = 0;
 		discord::Activity activity;
 		uint32_t lastModeID = 0;
-		std::uint64_t startTimestamp = 0;
 
-		uint64_t refreshTimestamp = 0;
 		bool requiresRefresh = false;
 	};
 
@@ -40,10 +40,24 @@ namespace SporePresence {
 	public:
 		static const uint32_t type = id("DiscordPresenceManager");
 
+		///  Runs when game launches.
+		static void SporeInit();
+
+		static void Initialize();
+		static void Dispose();
+		static void ResetManager();
+	private:
+		static intrusive_ptr<App::UpdateMessageListener> listenerInstance;
+
+		// TimeStamp of application launch.
+		static std::uint64_t startTimestamp;
+
+		// Serves as general tick rate of an application.
+		static uint64_t refreshTimestamp;
+
 		DiscordPresenceManager();
 		~DiscordPresenceManager();
 
-	private:
 		///  Activity that should be displayed
 		SporeActivity discordData{};
 

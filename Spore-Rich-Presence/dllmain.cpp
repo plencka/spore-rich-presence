@@ -7,18 +7,18 @@
 void Initialize()
 {
 	SporeDebugPrint("Discord Rich Presence: DEBUG RELEASE");
+	SporePresence::DiscordPresenceManager::SporeInit();
 	SporePresence::InitializeListeners();
-	App::AddUpdateFunction(new SporePresence::DiscordPresenceManager());
+	SporePresence::DiscordPresenceManager::Initialize();
 }
 
 void Dispose()
 {
+	SporePresence::DiscordPresenceManager::Dispose();
 }
 
 void AttachDetours()
 {
-	// Call the attach() method on any detours you want to add
-	// For example: cViewer_SetRenderType_detour::attach(GetAddress(cViewer, SetRenderType));
 }
 
 
