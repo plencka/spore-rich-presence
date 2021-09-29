@@ -1,5 +1,9 @@
-string16 largeHoverName "Civilization Stage"
 string16 largeImage "stageciv_large"
 
-string16 detailName "In Game"
-string16 stateName "Fighting for planetary domination."
+texts largeHoverName
+	"Fighting for planetary domination."
+end
+
+texts detailName
+	"Civilization Stage"
+end

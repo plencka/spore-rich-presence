@@ -1,26 +1,175 @@
 #include "stdafx.h"
-#include <chrono>
 #include "DiscordPresenceManager.h"
-#include <Spore/App/IGameMode.h>
-#include <Spore/App/cGameModeManager.h>
+#include "StageHandlers/StageData.h"
+#include "Utilities/ActivityFileReader.h"
+#include "Utilities/UintTimeStamps.h"
 
 namespace SporePresence {
-	discord::Core* core{};
-	void InitDiscord() { // Todo: Reconnect on fail
-		auto result = discord::Core::Create(890708854332076123, DiscordCreateFlags_Default, &core);
-		discord::Activity activity{};
-		activity.SetState("Just launched.");
-		core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {});
-	}
+	intrusive_ptr<App::UpdateMessageListener> DiscordPresenceManager::listenerInstance;
+	uint64_t DiscordPresenceManager::startTimestamp = 0;
+	uint64_t DiscordPresenceManager::refreshTimestamp = 0;
 
+	void DiscordPresenceManager::SporeInit()
+	{
+		UintTimeStamp::SetTimeStamp(startTimestamp);
+	}
 
 	DiscordPresenceManager::DiscordPresenceManager() {
-		auto now = std::chrono::system_clock::now();
-		discordData.startTimestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 		discordData.lastModeID = 0;
+		discordData.failCount = 0;
+
+		MessageManager.AddListener(this, App::OnModeEnterMessage::ID);
 		MessageManager.AddListener(this, StageMessageID::kDiscordUpdateActivity);
+
 		InitDiscord();
 	}
+
+	DiscordPresenceManager::~DiscordPresenceManager()
+	{
+		if (!MessageManager.Get()) {
+			return;
+		}
+		MessageManager.RemoveListener(this, App::OnModeEnterMessage::ID);
+		MessageManager.RemoveListener(this, StageMessageID::kDiscordUpdateActivity);
+		discordCore->~Core();
+	}
+
+	void DiscordPresenceManager::Initialize()
+	{
+		if (listenerInstance) {
+			return;
+		}
+		listenerInstance = App::AddUpdateFunction(new SporePresence::DiscordPresenceManager());
+	}
+
+	void DiscordPresenceManager::Dispose()
+	{
+		if (!listenerInstance) {
+			return;
+		}
+		App::RemoveUpdateFunction(listenerInstance);
+		listenerInstance = nullptr;
+	}
+
+	void DiscordPresenceManager::ResetManager()
+	{
+		Dispose();
+		Initialize();
+	}
+
+	void DiscordPresenceManager::InitDiscord() {
+		auto result = discord::Core::Create(discordApplicationID, DiscordCreateFlags_NoRequireDiscord, &discordCore);
+
+		if (!discordCore) {
+			return;
+		}
+
+		discord::Activity activity{};
+		activity.SetState("Loading...");
+		discordCore->ActivityManager().UpdateActivity(activity, [](discord::Result result) {});
+
+		if (GameModeManager.Get()) {
+			NewModeActivity(GameModeManager.GetActiveModeID());
+			NotifyDiscord(true);
+		}
+	}
+
+
+	void DiscordPresenceManager::Update()
+	{
+		if (UintTimeStamp::HasElapsed(refreshTimestamp, rateFriendlyValue)) {
+			if (!discordCore) {
+				ResetManager();
+				return;
+			}
+			MessageManager.PostMSG(StageMessageID::kDiscordRequestStageActivity, nullptr);
+			NotifyDiscord();
+		}
+
+		if (!discordCore) {
+			return;
+		}
+
+		if (discordCore->RunCallbacks() == discord::Result::Ok) {
+			discordData.failCount = 0;
+		}
+		else {
+			if (++discordData.failCount > reconnectThreshold) {
+				ResetManager();
+			};
+		}
+	}
+
+
+	void DiscordPresenceManager::NotifyDiscord(bool forceRefresh)
+	{
+		if (discordData.requiresRefresh || forceRefresh) {
+#ifdef DISCORD_GHOST_STATUS
+			discordData.requiresRefresh = false;
+			return;
+#endif
+			discordCore->ActivityManager().UpdateActivity(discordData.activity, [this](discord::Result result) {
+				if (result == discord::Result::Ok) {
+					discordData.failCount = 0;
+					discordData.requiresRefresh = false;
+				}
+				else {
+					if (++discordData.failCount > reconnectThreshold) {
+						ResetManager();
+					};
+				}
+			});
+		}
+	}
+
+	void DiscordPresenceManager::UpdateActivityData(ResourceID fileID) {
+		PropertyListPtr propList;
+		if (PropManager.GetPropertyList(fileID.instanceID, fileID.groupID, propList))
+		{
+			ActivityFileReader(propList).UpdateData(discordData.activity);
+			discordData.requiresRefresh = true;
+		}
+	}
+
+	void DiscordPresenceManager::NewModeActivity(uint32_t newMode)
+	{
+		discordData.lastModeID = newMode;
+		discordData.activity = discord::Activity();
+
+		discordData.activity.SetDetails("Unknown Mode");
+		discordData.activity.GetTimestamps().SetStart(startTimestamp);
+
+		UpdateActivityData({ newMode , id("RPC_GameModes") });
+	}
+
+
+	bool DiscordPresenceManager::HandleMessage(uint32_t messageID, void* message) {
+		if (messageID == StageMessageID::kDiscordUpdateActivity)
+		{
+			auto data = (StageMessageData*)message;
+
+			if (data->stageID == discordData.lastModeID) {
+				UpdateActivityData(data->activityPropFile);
+			}
+
+			return true;
+		}
+
+		if (messageID == App::OnModeEnterMessage::ID)
+		{
+			auto data = (App::OnModeEnterMessage*)message;
+
+			uint32_t newModeID = data->GetModeID();
+			if (discordData.lastModeID != newModeID) {
+				NewModeActivity(newModeID);
+			}
+
+			return false;
+		}
+
+		return false;
+	}
+
 
 	int DiscordPresenceManager::AddRef()
 	{
@@ -37,89 +186,5 @@ namespace SporePresence {
 		CLASS_CAST(Object);
 		CLASS_CAST(DiscordPresenceManager);
 		return nullptr;
-	}
-
-	void DiscordPresenceManager::UpdateValues(ResourceID fileID) {
-		PropertyListPtr propList;
-		if (PropManager.GetPropertyList(fileID.instanceID, fileID.groupID, propList))
-		{
-			LocalizedString lString;
-			if (App::Property::GetText(propList.get(), 0x64332DFD, lString)) { // largeHoverName
-				string cString = "";
-				cString.sprintf("%ls", lString.GetText());
-				discordData.activity.GetAssets().SetLargeText(cString.c_str());
-			}
-			if (App::Property::GetText(propList.get(), 0x304B070F, lString)) { // detailName
-				string cString = "";
-				cString.sprintf("%ls", lString.GetText());
-				discordData.activity.SetDetails(cString.c_str());
-			}
-			if (App::Property::GetText(propList.get(), 0xBAD876E1, lString)) { // stateName
-				string cString = "";
-				cString.sprintf("%ls", lString.GetText());
-				discordData.activity.SetState(cString.c_str());
-			}
-			if (App::Property::GetText(propList.get(), 0x4AF215B1, lString)) { // smallHoverName
-				string cString = "";
-				cString.sprintf("%ls", lString.GetText());
-				discordData.activity.GetAssets().SetSmallText(cString.c_str());
-			}
-
-			string16 unicodeString;
-			if (App::Property::GetString16(propList.get(), 0xABE76E55, unicodeString)) { // largeImage
-				string cString = "";
-				cString.sprintf("%ls", unicodeString.c_str());
-				discordData.activity.GetAssets().SetLargeImage(cString.c_str());
-			}
-			if (App::Property::GetString16(propList.get(), 0x1C6B2351, unicodeString)) { // smallImage
-				string cString = "";
-				cString.sprintf("%ls", unicodeString.c_str());
-				discordData.activity.GetAssets().SetSmallImage(cString.c_str());
-			}
-
-			App::ConsolePrintF("Updated discord status.");
-			core->ActivityManager().UpdateActivity(discordData.activity, [](discord::Result result) {});
-		}
-	}
-
-	void DiscordPresenceManager::NewModeActivity(uint32_t newMode)
-	{
-		discordData.lastModeID = newMode;
-		discordData.activity = discord::Activity();
-		string activityText = "";
-		activityText.sprintf("Mode ID: %X", discordData.lastModeID);
-		discordData.activity.SetState(activityText.c_str());
-		discordData.activity.SetDetails("Unknown.");
-		discordData.activity.GetTimestamps().SetStart(discordData.startTimestamp);
-
-		UpdateValues({ newMode , id("RPC_GameModes") });
-	}
-
-
-	void DiscordPresenceManager::Update()
-	{
-		if (auto modeManager = GameModeManager.Get()) {
-			auto cMode = reinterpret_cast<App::cGameModeManager*>(modeManager);
-			uint32_t id = GameModeManager.GetActiveModeID();
-			if (discordData.lastModeID != id) {
-				NewModeActivity(id);
-			}
-		}
-
-		MessageManager.PostMSG(StageMessageID::kDiscordRequestStageActivity, nullptr);
-		core->RunCallbacks();
-	}
-
-	bool DiscordPresenceManager::HandleMessage(uint32_t messageID, void* message) {
-		if (messageID == StageMessageID::kDiscordUpdateActivity)
-		{
-			auto data = (StageMessageData*)message;
-
-			if (data->stageID == discordData.lastModeID) {
-				UpdateValues(data->activityPropFile);
-			}
-			return true;
-		}
-		return false;
 	}
 }

@@ -1,5 +1,9 @@
-string16 largeHoverName "Creature Stage"
 string16 largeImage "stagecreature_large"
 
-string16 detailName "In Game"
-string16 stateName "Trying to thrive and survive."
+texts largeHoverName
+	"Trying to thrive and survive."
+end
+
+texts detailName
+	"Creature Stage"
+end

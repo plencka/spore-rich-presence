@@ -1,33 +1,48 @@
 #include "stdafx.h"
 #include "ModeHandlers.h"
+#include <Spore/App/ScenarioMode.h>
 
-namespace SporePresence {
-	bool SpaceHandler::HandleMessage(uint32_t messageID, void* message)
-	{
-		if (!StageHandler::HandleMessage(messageID, message)) {
-			return false;
-		}
+using namespace SporePresence::Handlers;
 
-		if (Simulator::cEmpire* playerEmpire = Simulator::GetPlayerEmpire()) {
-			SporePresence::StageMessageData messageData{};
-
-			messageData.stageID = SporePresence::KnownModeID::kStageSpace;
-			messageData.activityPropFile = { id("Unknown"), id("RPC_SpaceArchetypes") };
-
-			if (lastUsedID == playerEmpire->mArchetype) {
-				// No update required
-				return true;
-			}
-
-			if (PropManager.HasPropertyList(playerEmpire->mArchetype, messageData.activityPropFile.groupID)) {
-				messageData.activityPropFile.instanceID = playerEmpire->mArchetype;
-			};
-
-			lastUsedID = playerEmpire->mArchetype;
-			MessageManager.PostMSG(StageMessageID::kDiscordUpdateActivity, &messageData);
-			return true;
-		}
-
+bool SpaceHandler::HandleMessage(uint32_t messageID, void* message)
+{
+	if (!StageHandler::HandleMessage(messageID, message)) {
 		return false;
 	}
+
+	if (Simulator::cEmpire* playerEmpire = Simulator::GetPlayerEmpire()) {
+		SetUpCurrentState(playerEmpire->mArchetype);
+		return true;
+	}
+
+	return false;
+}
+
+bool EditorHandler::HandleMessage(uint32_t messageID, void* message)
+{
+	if (!StageHandler::HandleMessage(messageID, message)) {
+		return false;
+	}
+
+	if (Editors::GetEditor()) {
+		SetUpCurrentState(Editor.mSaveExtension);
+		return true;
+	}
+
+	return false;
+}
+
+
+bool AdventureHandler::HandleMessage(uint32_t messageID, void* message)
+{
+	if (!StageHandler::HandleMessage(messageID, message)) {
+		return false;
+	}
+
+	if (App::ScenarioMode* ScenarioMode = App::ScenarioMode::Get()) {
+		SetUpCurrentState((uint32_t)ScenarioMode->mMode);
+		return true;
+	}
+
+	return false;
 }
