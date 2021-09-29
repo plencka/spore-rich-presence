@@ -1,4 +1,4 @@
-string16 largeImage "galaxyscreen_large"
+string16 largeImage "editor_large"
 
 texts detailName
 	"Effect Editor"

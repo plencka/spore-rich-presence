@@ -29,8 +29,6 @@ namespace SporePresence {
 		bool requiresRefresh = false;
 	};
 
-	/// Manager for Discord Rich Presence.
-	/// Initializes, updates and listens to game messages for GameMode handling.
 	class DiscordPresenceManager
 		: public Object
 		, public DefaultRefCounted
@@ -40,7 +38,7 @@ namespace SporePresence {
 	public:
 		static const uint32_t type = id("DiscordPresenceManager");
 
-		///  Runs when game launches.
+		/// Runs when the game launches.
 		static void SporeInit();
 
 		static void Initialize();
@@ -58,16 +56,17 @@ namespace SporePresence {
 		DiscordPresenceManager();
 		~DiscordPresenceManager();
 
-		///  Activity that should be displayed
+		// Activity that should be displayed
 		SporeActivity discordData{};
 
 		discord::Core* discordCore{};
 
-		/// Creates initial state for the discord application client.
+
+		// Creates initial state for the discord application client.
 		void InitDiscord();
 
 		/// Heartbeat of the modification.
-		/// Mostly communicates with external listeners.
+		/// Communicates with external listeners and runs callbacks.
 		void Update() override;
 
 		/// Read and write data into activity if file exists.
@@ -75,23 +74,18 @@ namespace SporePresence {
 		void UpdateActivityData(ResourceID fileID);
 
 		/// Refresh activity to show new data.
-		/// @param forceRefresh - Refresh activity, even if it's not pending.
-		/// Doesn't override rate protection.
+		/// @param forceRefresh - Refresh activity, even if it's not pending. Doesn't override rate limits.
 		void NotifyDiscord(bool forceRefresh = false);
 
 		/// Create new activity for new Game Mode.
 		/// @param newModeID - ID of entered mode. 
 		void NewModeActivity(uint32_t newModeID);
 
-
 		/// Called by using ModAPI's MessageManager.
 		/// @param messageID - Use `PostMSG` method with StageMessageID::kDiscordUpdateActivity, if you want to handle your custom Game Mode.
 		/// @param messageData - Use `StageMessageData` object for mode implementation.
 		bool HandleMessage(uint32_t messageID, void* messageData) override;
 		
-
-		// Generic ModAPI functions
-
 		virtual int AddRef() override;
 		virtual int Release() override;
 		virtual void* Cast(uint32_t typeID) const override;

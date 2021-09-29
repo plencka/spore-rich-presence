@@ -14,6 +14,26 @@ namespace SporePresence {
 		UintTimeStamp::SetTimeStamp(startTimestamp);
 	}
 
+	DiscordPresenceManager::DiscordPresenceManager() {
+		discordData.lastModeID = 0;
+		discordData.failCount = 0;
+
+		MessageManager.AddListener(this, App::OnModeEnterMessage::ID);
+		MessageManager.AddListener(this, StageMessageID::kDiscordUpdateActivity);
+
+		InitDiscord();
+	}
+
+	DiscordPresenceManager::~DiscordPresenceManager()
+	{
+		if (!MessageManager.Get()) {
+			return;
+		}
+		MessageManager.RemoveListener(this, App::OnModeEnterMessage::ID);
+		MessageManager.RemoveListener(this, StageMessageID::kDiscordUpdateActivity);
+		discordCore->~Core();
+	}
+
 	void DiscordPresenceManager::Initialize()
 	{
 		if (listenerInstance) {
@@ -35,26 +55,6 @@ namespace SporePresence {
 	{
 		Dispose();
 		Initialize();
-	}
-
-	DiscordPresenceManager::DiscordPresenceManager() {
-		discordData.lastModeID = 0;
-		discordData.failCount = 0;
-
-		MessageManager.AddListener(this, App::OnModeEnterMessage::ID);
-		MessageManager.AddListener(this, StageMessageID::kDiscordUpdateActivity);
-
-		InitDiscord();
-	}
-
-	DiscordPresenceManager::~DiscordPresenceManager()
-	{
-		if (!MessageManager.Get()) {
-			return;
-		}
-		MessageManager.RemoveListener(this, App::OnModeEnterMessage::ID);
-		MessageManager.RemoveListener(this, StageMessageID::kDiscordUpdateActivity);
-		discordCore->~Core();
 	}
 
 	void DiscordPresenceManager::InitDiscord() {

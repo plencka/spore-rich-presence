@@ -26,6 +26,11 @@ namespace SporePresence {
 	struct StageMessageData {
 		uint32_t stageID;
 		ResourceID activityPropFile;
+
+		StageMessageData(uint32_t modeID, ResourceID resourceID) :
+			stageID(modeID),
+			activityPropFile(resourceID)
+		{};
 	};
 
 	class StageHandler
@@ -34,6 +39,23 @@ namespace SporePresence {
 	protected:
 		uint32_t modeID;
 		uint32_t lastUsedID = id("sys_await_correct_mode");
+		ResourceID defaultResourceID;
+
+		void SetUpCurrentState(uint32_t subModeID) {
+			if (lastUsedID == subModeID) {
+				// No update required
+				return;
+			}
+			lastUsedID = subModeID;
+
+			SporePresence::StageMessageData messageData(modeID, defaultResourceID);
+
+			if (PropManager.HasPropertyList(subModeID, messageData.activityPropFile.groupID)) {
+				messageData.activityPropFile.instanceID = subModeID;
+			};
+
+			MessageManager.PostMSG(StageMessageID::kDiscordUpdateActivity, &messageData);
+		}
 
 		bool HandleMessage(uint32_t messageID, void* message) override {
 			if (messageID != StageMessageID::kDiscordRequestStageActivity) {
