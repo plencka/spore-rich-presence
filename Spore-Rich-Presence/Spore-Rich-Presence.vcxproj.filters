@@ -50,9 +50,6 @@
     <ClCompile Include="StageHandlers\ModeHandlers.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SdkPathConfig.props" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="ReadMe.txt">
       <Filter>Internal</Filter>
     </Text>
