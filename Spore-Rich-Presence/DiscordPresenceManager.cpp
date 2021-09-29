@@ -122,12 +122,16 @@ namespace SporePresence {
 		}
 	}
 
-	void DiscordPresenceManager::UpdateActivityData(ResourceID fileID) {
+	void DiscordPresenceManager::UpdateActivityData(ResourceID fileID, bool repeatToUnknownOnFail) {
 		PropertyListPtr propList;
 		if (PropManager.GetPropertyList(fileID.instanceID, fileID.groupID, propList))
 		{
 			ActivityFileReader(propList).UpdateData(discordData.activity);
 			discordData.requiresRefresh = true;
+		}
+		else if (repeatToUnknownOnFail){
+			fileID.instanceID = id("Unknown");
+			UpdateActivityData(fileID, false);
 		}
 	}
 
@@ -136,7 +140,6 @@ namespace SporePresence {
 		discordData.lastModeID = newMode;
 		discordData.activity = discord::Activity();
 
-		discordData.activity.SetDetails("Unknown Mode");
 		discordData.activity.GetTimestamps().SetStart(startTimestamp);
 
 		UpdateActivityData({ newMode , id("RPC_GameModes") });
