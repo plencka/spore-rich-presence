@@ -3,7 +3,7 @@ A modded Discord Rich Presence solution for Spore - a 2008 life simulation real-
 
 ## What is Rich Presence?
 Discord's Rich presence is a feature, allowing Discord's users to display data related to currently played game. 
-It's especially useful when you want to let your friends know, what you're currently doing. 
+It's especially useful when you want to let your friends know what you're doing. 
 This modification will track currently played Game Mode. Some of them might display additional information, like Space Stage archetypes.
 
 
