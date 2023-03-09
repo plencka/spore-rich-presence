@@ -1,6 +1,8 @@
 # Spore-Rich-Presence
-[![Github All Releases](https://img.shields.io/github/downloads/plencka/Spore-Rich-Presence/total.svg)]()
-[![Github Latest Release](https://img.shields.io/github/v/release/plencka/Spore-Rich-Presence)]()
+[![Github All Releases](https://img.shields.io/github/downloads/plencka/Spore-Rich-Presence/total.svg)](/../../releases/latest)
+[![Github License](https://img.shields.io/github/license/plencka/Spore-Rich-Presence)](/LICENSE)
+[![Github Latest Release](https://img.shields.io/github/v/release/plencka/Spore-Rich-Presence)](/../../releases/latest)
+[![Github Top Language](https://img.shields.io/github/languages/top/plencka/Spore-Rich-Presence)]()
 [![Github Repo Size](https://img.shields.io/github/repo-size/plencka/Spore-Rich-Presence)]()
 
 A modded Discord Rich Presence solution for Spore - a 2008 life simulation real-time strategy God game. <br>
