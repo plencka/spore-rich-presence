@@ -1,4 +1,4 @@
-# Spore-Rich-Presence
+# spore-rich-presence
 [![Github All Releases](https://img.shields.io/github/downloads/plencka/Spore-Rich-Presence/total.svg)](/../../releases/latest)
 [![Github License](https://img.shields.io/github/license/plencka/Spore-Rich-Presence)](/LICENSE)
 [![Github Latest Release](https://img.shields.io/github/v/release/plencka/Spore-Rich-Presence)](/../../releases/latest)
