@@ -2,14 +2,14 @@
 A modded Discord Rich Presence solution for Spore - a 2008 life simulation real-time strategy God game.
 
 ## What is Rich Presence?
-Discord's Rich presence is a feature, allowing Discord's users to display data related to currently played game. 
-It's especially useful when you want to let your friends know what you're doing. 
-This modification will track currently played Game Mode. Some of them might display additional information, like Space Stage archetypes.
+Discord's Rich Presence is a feature that enables users to display data related to the game they are currently playing. 
+This is particularly useful for letting friends know what you're up to.
+This modification will track the currently played game mode, and some of them may display additional information, such as Space Stage archetypes.
 
 
 Want to see it in action? Take a look:
 <p align="center">
-  <img src="/GitAssets/ExampleProfile.PNG?raw=true" />
+  <img src="/.github/images/ExampleProfile.PNG?raw=true" />
 </p>
 
 <br><br>
@@ -22,7 +22,7 @@ Want to see it in action? Take a look:
 #
 > * __Any more examples?__
 >> Sure!<br>
->> <img src="/GitAssets/StageExample.PNG?raw=true" /> <img src="/GitAssets/AdventureExample.PNG?raw=true" /> <img src="/GitAssets/EditorExample.PNG?raw=true" />
+>> <img src="/.github/images/StageExample.PNG?raw=true" /> <img src="/.github/images/AdventureExample.PNG?raw=true" /> <img src="/.github/images/EditorExample.PNG?raw=true" />
 #
 > * __I found a bug!__
 >> Please, submit it on [Issues Page](/../../issues) and be descriptive! Any other way makes me sad.
