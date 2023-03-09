@@ -1,5 +1,7 @@
 # Spore-Rich-Presence
 [![Github All Releases](https://img.shields.io/github/downloads/plencka/Spore-Rich-Presence/total.svg)]()
+[![Github Latest Release](https://img.shields.io/github/v/release/plencka/Spore-Rich-Presence)]()
+[![Github Repo Size](https://img.shields.io/github/repo-size/plencka/Spore-Rich-Presence)]()
 
 A modded Discord Rich Presence solution for Spore - a 2008 life simulation real-time strategy God game. <br>
 This modification uses [ModAPI](https://github.com/emd4600/Spore-ModAPI). Please, use instructions in the linked repository.
@@ -20,23 +22,23 @@ This modification will track the currently played game mode, and some of them ma
 
 <br><br>
 ## Questions and Answers
-#### Where can I download it? I have no idea what to do with these files!
+#### :scream: Where can I download it? I have no idea what to do with these files!
 * The newest version can always be found on [Releases Page](/../../releases/latest). Repository contains source files for developers.
 
-#### How to install it?
+#### :floppy_disk: How to install it?
 * You need to use instructions provided in [ModAPI](https://github.com/emd4600/Spore-ModAPI).
 
-#### I found a bug!
+#### :bug: I found a bug!
 * Please, submit it on [Issues Page](/../../issues) and be descriptive! Any other way makes me sad.
 
-#### It doesn't work!
+#### :rage: It doesn't work!
 * If no other ModAPI mod works for you and never did, it's likely not related to my modification.
 
-#### Where are the image assets?
+#### :framed_picture: Where are the image assets?
 * Due to external limitations, I cannot provide them.
 
-#### Why would you make a mod for a game made in 2008?
-* I don't know.
+#### :nerd_face: Why would you make a mod for a game made in 2008?
+* I don't know. :man_shrugging:
 
 #
 *Repository requires Discord Game SDK and contains necessary modifications.* <br>
